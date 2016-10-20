@@ -1,0 +1,108 @@
+<h1>Welcome, <%= @user['first_name'] %></h1>
+<a href="<%= edit_user_path(@user['id']) %>">Edit My Profile</a>
+<a href="sessions" data-method="delete">Logout</a>
+
+<p>Here are some of the events in your state:</p>
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Date</th>
+			<th>Location</th>
+			<th>Host</th>
+			<th>Action/Status</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% @localEvents.each do |event| %>
+			<tr>
+				<td><a href="<%= event_path(event.id) %>"><%= event.name %></a></td>
+				<td><%= event.date.strftime('%D') %></td>
+				<td><%= event.city %></td>
+				<td><%= event.user.first_name %></td>
+				<td>
+					<% if event.user = current_user %>	
+						<a href="<%= edit_event_path(event.id) %>">Edit</a>
+						<a href="events/<%= event['id'] %>" data-method="delete">Delete</a>
+					<% elsif event.attendees.include? current_user %>
+						Joined
+						<a href="rsvps/<%= Rsvp.select('id').where(event: event, user: @user) %>" data-method="delete">Cancel</a>
+					<% else %>
+						<%= form_for @rsvp do |f| %>
+							<%= f.hidden_field :event, value: event %>
+							<%= f.hidden_field :user, value: @user %>
+							<%= f.submit :value => "Join" %>
+						<% end %>
+					<% end %>
+				</td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+
+<p>Here are some of the events in your state:</p>
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Date</th>
+			<th>Location</th>
+			<th>State</th>
+			<th>Host</th>
+			<th>Action/Status</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% @otherEvents.each do |event| %>
+			<tr>
+				<td><a href="<%= event_path(event.id) %>"><%= event.name %></a></td>
+				<td><%= event.date.strftime('%D') %></td>
+				<td><%= event.city %></td>
+				<td><%= event.state.abbv %></td>
+				<td><%= event.user.first_name %></td>
+				<td>
+					<% if event.user == current_user %>	
+						<a href="<%= edit_event_path(event.id) %>">Edit</a>
+						<a href="events/<%= event['id'] %>" data-method="delete">Delete</a>
+					<% elsif event.attendees.include? current_user %>
+						Joined
+						<a href="rsvps/<%= Rsvp.where(event: event, user: current_user)[0].id %>" data-method="delete">Cancel</a>
+					<% else %>
+						<%= form_for @rsvp do |f| %>
+							<%= f.hidden_field :event, value: event.id %>
+							<%= f.hidden_field :user, value: @user %>
+							<%= f.submit :value => "Join" %>
+						<% end %>
+					<% end %>
+				</td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+
+<h2>Add Event</h2>
+
+<% if flash[:errors] %>
+	<% flash[:errors].each do |err| %>
+		<p><%= err %></p>
+	<% end %>
+<% end %>
+
+<%= form_for @event do |f| %>
+	<p>
+		<%= f.label :name, "Name" %>
+		<%= f.text_field :name %>
+	</p>
+	<p>
+		<%= f.label :date, "Date" %>
+		<%= f.date_field :date %>
+	</p>
+	<p>
+		<%= f.label :city, "Location" %>
+		<%= f.text_field :city %>
+		<%= f.collection_select(:state_id, @states, :id, :abbv) %>
+	</p>
+	<p>
+		<%= f.submit "Add Event", :disable_with => 'Adding...' %>
+	</p>
+<% end %>

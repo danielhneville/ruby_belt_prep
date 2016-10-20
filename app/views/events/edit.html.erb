@@ -1,0 +1,29 @@
+<a href="<%= events_path %>">Events Dashboard</a>
+<a href="/sessions" data-method="delete">Logout</a>
+
+<h2>Edit Event</h2>
+
+<% if flash[:errors] %>
+	<% flash[:errors].each do |err| %>
+		<p><%= err %></p>
+	<% end %>
+<% end %>
+
+<%= form_for @event do |f| %>
+	<p>
+		<%= f.label :name, "Name" %>
+		<%= f.text_field :name %>
+	</p>
+	<p>
+		<%= f.label :date, "Date" %>
+		<%= f.date_field :date %>
+	</p>
+	<p>
+		<%= f.label :city, "Location" %>
+		<%= f.text_field :city %>
+		<%= f.collection_select(:state_id, State.all, :id, :abbv)%>
+	</p>
+	<p>
+		<%= f.submit "Update Event", :disable_with => 'Adding...' %>
+	</p>
+<% end %>

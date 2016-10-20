@@ -1,0 +1,48 @@
+<a href="<%= events_path %>">Events Dashboard</a>
+<a href="/sessions" data-method="delete">Logout</a>
+
+<h1><%= @event.name %></h1>
+<p>Host: <%= @event.user.first_name %> <%= @event.user.last_name %></p>
+<p>Date: <%= @event.date %></p>
+<p>Location: <%= @event.city %>, <%= @event.state.abbv %></p>
+<p>People who are joining the event: <%= @event.attendees.count %></p>
+
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>City</th>
+			<th>State</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% @event.attendees.each do |user| %>
+			<tr>
+				<td><%= user.first_name %> <%= user.last_name %></td>
+				<td><%= user.city %></td>
+				<td><%= user.state.abbv %></td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+
+<% if flash[:errors] %>
+	<% flash[:errors].each do |err| %>
+		<p><%= err %></p>
+	<% end %>
+<% end %>
+
+<%= form_for @comment do |f| %>
+	
+	<%= f.hidden_field :event, :value => @event.id %>
+
+	<%= f.label :content, "Comment" %>
+	<%= f.text_area :content %>
+
+	<%= f.submit :value => "Add Comment" %>
+
+<% end %>
+
+<% @event.comments.each do |c| %>
+	<p><%= c.user.first_name %> says: <%= c.content %></p>
+<% end %>
