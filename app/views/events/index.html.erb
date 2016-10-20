@@ -21,15 +21,15 @@
 				<td><%= event.city %></td>
 				<td><%= event.user.first_name %></td>
 				<td>
-					<% if event.user = current_user %>	
+					<% if event.user == current_user %>	
 						<a href="<%= edit_event_path(event.id) %>">Edit</a>
 						<a href="events/<%= event['id'] %>" data-method="delete">Delete</a>
 					<% elsif event.attendees.include? current_user %>
 						Joined
-						<a href="rsvps/<%= Rsvp.select('id').where(event: event, user: @user) %>" data-method="delete">Cancel</a>
+						<a href="rsvps/<%= Rsvp.where(event: event, user: current_user)[0].id %>" data-method="delete">Cancel</a>
 					<% else %>
 						<%= form_for @rsvp do |f| %>
-							<%= f.hidden_field :event, value: event %>
+							<%= f.hidden_field :event, value: event.id %>
 							<%= f.hidden_field :user, value: @user %>
 							<%= f.submit :value => "Join" %>
 						<% end %>
